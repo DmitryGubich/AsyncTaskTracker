@@ -1,2 +1,2 @@
 # UberPopugInc
-Awesome Task Exchange System (aTES) для UberPopug Inc
+Awesome Task Exchange System (aTES) for UberPopug Inc
