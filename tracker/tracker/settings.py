@@ -10,9 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-from pathlib import Path
-import environ
 import os
+from pathlib import Path
+
+import environ
 
 env = environ.Env()
 
@@ -59,7 +60,7 @@ ROOT_URLCONF = "tracker.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR, "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -122,3 +123,7 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+SSO_PRIVATE_KEY = env("SSO_PRIVATE_KEY")
+SSO_PUBLIC_KEY = env("SSO_PUBLIC_KEY")
+SSO_SERVER = env("SSO_SERVER")

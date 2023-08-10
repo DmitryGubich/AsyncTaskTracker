@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}UberPopugInc{% endblock %}</title>
+  </head>
+  <body>
+    <header>
+      <h1><a href="{% url 'main' %}">Auth module</a></h1>
+        {% if user.is_authenticated %}
+            Hi {{ user.username }}! <a href="{% url 'logout' %}">Logout</a>
+        {% else %}
+          <a href="{% url 'login' %}">Login</a> / <a href="{% url 'signup' %}">Signup</a>
+        {% endif %}
+      <hr>
+    </header>
+    <main>
+      {% block content %}
+      {% endblock %}
+    </main>
+  </body>
+</html>
