@@ -14,11 +14,21 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path
-from django.views.generic import TemplateView
+from django.contrib.auth import views as auth_views
+from django.urls import include, path
+from simple_sso.sso_client.client import Client
+
+from tracker import settings
+from tracker.views import MainView
+
+client = Client(
+    settings.SSO_SERVER,
+    settings.SSO_PUBLIC_KEY,
+    settings.SSO_PRIVATE_KEY,
+)
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("", TemplateView.as_view(template_name="base.html"), name="main"),
+    path("auth/", include(client.get_urls())),
+    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("", MainView.as_view(), name="main"),
 ]

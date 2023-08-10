@@ -14,15 +14,16 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+from simple_sso.sso_server.server import Server
 
-from .views import LoginView, LogoutView, MainView, SignUpView
+from .views import LoginView, LogoutView, SignUpView
+
+server = Server()
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("server/", include(server.get_urls())),
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("signup/", SignUpView.as_view(), name="signup"),
-    path("", MainView.as_view(), name="main"),
 ]

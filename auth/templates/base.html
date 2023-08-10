@@ -6,7 +6,7 @@
   </head>
   <body>
     <header>
-      <h1><a href="{% url 'main' %}">Auth module</a></h1>
+      <h1>Auth module</h1>
         {% if user.is_authenticated %}
             Hi {{ user.username }}! <a href="{% url 'logout' %}">Logout</a>
         {% else %}
