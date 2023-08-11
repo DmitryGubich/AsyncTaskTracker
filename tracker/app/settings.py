@@ -34,6 +34,8 @@ DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = "tracker.User"
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -95,11 +97,6 @@ REST_FRAMEWORK = {
     ]
 }
 
-SIMPLE_JWT = {
-    "USER_ID_FIELD": "public_id",
-    # "SIGNING_KEY": env("SIGNING_KEY"),
-}
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -120,6 +117,3 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-LOGOUT_REDIRECT_URL = "/"
-LOGIN_URL = "/auth"

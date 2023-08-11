@@ -10,6 +10,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
         token["role"] = user.role
+        token["public_id"] = str(user.public_id)
         return token
 
 
@@ -20,13 +21,14 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
 
         fields = [
+            "id",
             "public_id",
             "username",
             "password",
             "role",
         ]
 
-        read_only_fields = ["public_id"]
+        read_only_fields = ["id", "public_id"]
 
     def create(self, validated_data):
         user = User.objects.create(

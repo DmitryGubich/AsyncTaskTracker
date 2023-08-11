@@ -10,5 +10,5 @@ class User(AbstractUser):
         ("manager", "Manager"),
         ("user", "User"),
     )
-    public_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    public_id = models.UUIDField(default=uuid.uuid4)
     role = models.CharField(choices=ROLE_CHOICES, default="user", max_length=254)
