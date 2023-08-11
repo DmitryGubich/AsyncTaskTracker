@@ -14,21 +14,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from app import settings
-from django.contrib.auth import views as auth_views
 from django.urls import include, path
-from simple_sso.sso_client.client import Client
-
-from tracker.views import MainView
-
-client = Client(
-    settings.SSO_SERVER,
-    settings.SSO_PUBLIC_KEY,
-    settings.SSO_PRIVATE_KEY,
-)
 
 urlpatterns = [
-    path("auth/", include(client.get_urls())),
-    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
-    path("", MainView.as_view(), name="main"),
+    path("", include("tracker.urls")),
 ]

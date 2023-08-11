@@ -1,18 +1,19 @@
-from django.contrib.auth import views as auth_views
-from django.contrib.auth.forms import UserCreationForm
-from django.urls import reverse_lazy
-from django.views import generic
+from django.contrib.auth import get_user_model
+from rest_framework import generics
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+from .serializers import CustomTokenObtainPairSerializer, UserSerializer
+
+User = get_user_model()
 
 
-class SignUpView(generic.CreateView):
-    form_class = UserCreationForm
-    success_url = reverse_lazy("login")
-    template_name = "signup.html"
+class UserView(generics.ListCreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = UserSerializer
 
 
-class LoginView(auth_views.LoginView):
-    template_name = "login.html"
-
-
-class LogoutView(auth_views.LogoutView):
-    template_name = "logout.html"
+class MyObtainTokenPairView(TokenObtainPairView):
+    permission_classes = (AllowAny,)
+    serializer_class = CustomTokenObtainPairSerializer

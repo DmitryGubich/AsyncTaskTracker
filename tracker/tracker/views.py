@@ -1,8 +1,11 @@
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from django.views import generic
+from rest_framework import generics
+from rest_framework.permissions import AllowAny
+
+from tracker.models import Task
+from tracker.serializers import TaskSerializer
 
 
-@method_decorator(login_required, name="dispatch")
-class MainView(generic.TemplateView):
-    template_name = "base.html"
+class TaskView(generics.ListCreateAPIView):
+    queryset = Task.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = TaskSerializer

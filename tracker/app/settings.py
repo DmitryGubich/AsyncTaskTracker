@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "rest_framework_simplejwt",
 ]
 
 MIDDLEWARE = [
@@ -86,6 +88,17 @@ DATABASES = {
     }
 }
 
+# Rest framework
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ]
+}
+
+SIMPLE_JWT = {
+    "USER_ID_FIELD": "public_id",
+    # "SIGNING_KEY": env("SIGNING_KEY"),
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -107,10 +120,6 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-SSO_PRIVATE_KEY = env("SSO_PRIVATE_KEY")
-SSO_PUBLIC_KEY = env("SSO_PUBLIC_KEY")
-SSO_SERVER = env("SSO_SERVER")
 
 LOGOUT_REDIRECT_URL = "/"
 LOGIN_URL = "/auth"

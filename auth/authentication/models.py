@@ -1,12 +1,14 @@
+import uuid
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
 class User(AbstractUser):
     ROLE_CHOICES = (
-        ("ADMIN", "admin"),
-        ("USER", "user"),
-        ("MANAGER", "manager"),
+        ("admin", "Admin"),
+        ("manager", "Manager"),
+        ("user", "User"),
     )
-
-    role = models.CharField(choices=ROLE_CHOICES, default="USER", max_length=15)
+    public_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    role = models.CharField(choices=ROLE_CHOICES, default="user", max_length=254)
