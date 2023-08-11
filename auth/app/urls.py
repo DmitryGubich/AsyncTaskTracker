@@ -15,10 +15,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from authentication.views import LoginView, LogoutView, SignUpView
-from django.urls import path
+from django.urls import include, path
+from django.views.generic import TemplateView
+from simple_sso.sso_server.server import Server
+
+server = Server()
 
 urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
+    path("server/", include(server.get_urls())),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("signup/", SignUpView.as_view(), name="signup"),
+    path("", TemplateView.as_view(template_name="main.html"), name="main"),
 ]

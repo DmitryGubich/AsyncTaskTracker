@@ -37,6 +37,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "tracker.apps.TrackerConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -110,3 +111,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SSO_PRIVATE_KEY = env("SSO_PRIVATE_KEY")
 SSO_PUBLIC_KEY = env("SSO_PUBLIC_KEY")
 SSO_SERVER = env("SSO_SERVER")
+
+LOGOUT_REDIRECT_URL = "/"
+LOGIN_URL = "/auth"
