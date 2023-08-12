@@ -18,5 +18,7 @@ class TaskSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "public_id", "assignee"]
 
     def create(self, validated_data):
-        validated_data["assignee"] = AuthUser.objects.order_by("?")[0]
+        validated_data["assignee"] = AuthUser.objects.exclude(
+            role__in=["manager", "admin"]
+        ).order_by("?")[0]
         return Task.objects.create(**validated_data)

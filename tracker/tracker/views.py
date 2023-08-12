@@ -41,23 +41,19 @@ class TaskViewSet(viewsets.ViewSet):
     @auth_decorator
     def complete(self, request, pk):
         task = Task.objects.get(pk=pk)
-
-        if task.status == "done":
-            return Response(
-                "This task is already completed", status=status.HTTP_403_FORBIDDEN
-            )
-
         task.status = "done"
         task.save()
         serializer = self.serializer_class(task)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["put"])
+    @action(detail=False, methods=["post"])
     @auth_decorator
     def shuffle(self, request):
         in_progress_tasks = Task.objects.filter(status="in_progress")
         for task in in_progress_tasks:
-            task.assignee = AuthUser.objects.order_by("?")[0]
+            task.assignee = AuthUser.objects.exclude(
+                role__in=["manager", "admin"]
+            ).order_by("?")[0]
             task.save()
         serializer = self.serializer_class(in_progress_tasks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
