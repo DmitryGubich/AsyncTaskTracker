@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from tracker.models import Task
+from tracker.models import AuthUser, Task
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -15,4 +15,8 @@ class TaskSerializer(serializers.ModelSerializer):
             "assignee",
         ]
 
-        read_only_fields = ["id", "public_id"]
+        read_only_fields = ["id", "public_id", "assignee"]
+
+    def create(self, validated_data):
+        validated_data["assignee"] = AuthUser.objects.order_by("?")[0]
+        return Task.objects.create(**validated_data)

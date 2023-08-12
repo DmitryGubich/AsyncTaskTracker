@@ -9,8 +9,12 @@ class AuthUser(models.Model):
         ("manager", "Manager"),
         ("user", "User"),
     )
-    public_id = models.UUIDField()
+    username = models.CharField(max_length=254)
+    public_id = models.UUIDField(primary_key=True)
     role = models.CharField(choices=ROLE_CHOICES, default="user", max_length=254)
+
+    def __str__(self):
+        return f"{self.username} (public_id:{self.public_id})"
 
 
 class Task(models.Model):
@@ -24,3 +28,6 @@ class Task(models.Model):
         choices=STATUS_CHOICES, default="in_progress", max_length=254
     )
     assignee = models.ForeignKey(AuthUser, on_delete=models.CASCADE, null=False)
+
+    def __str__(self):
+        return f"{self.public_id} (assignee:{self.assignee})"

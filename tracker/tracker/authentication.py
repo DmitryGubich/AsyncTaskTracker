@@ -7,9 +7,14 @@ from tracker.models import AuthUser
 
 class JWTAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
-        token = request.headers.get("Authorization", "").split()[1]
+        auth = request.headers.get("Authorization", "").split()
+        if len(auth) != 2:
+            raise exceptions.AuthenticationFailed(
+                detail="Invalid authentication header. No authentication header."
+            )
+
         user = jwt.decode(
-            token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+            auth[1], settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
         try:
             user = AuthUser.objects.get(public_id=user.get("public_id"))

@@ -1,15 +1,63 @@
-from rest_framework import status
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
-from tracker.models import Task
+from tracker.models import AuthUser, Task
+from tracker.permissions import auth_decorator
 from tracker.serializers import TaskSerializer
 
 
-class TaskView(APIView):
+class TaskViewSet(viewsets.ViewSet):
     serializer_class = TaskSerializer
 
-    def get(self, request):
-        tasks = Task.objects.all()
-        tasks_serializer = self.serializer_class(tasks, many=True)
-        return Response(tasks_serializer.data, status=status.HTTP_200_OK)
+    def list(self, request):
+        user = request.user
+        if user.role in ["manager", "admin"]:
+            tasks = Task.objects.all()
+        else:
+            tasks = Task.objects.filter(assignee=user)
+        serializer = self.serializer_class(tasks, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @auth_decorator
+    def retrieve(self, request, pk=None):
+        task = Task.objects.get(pk=pk)
+        serializer = self.serializer_class(task)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @auth_decorator
+    def destroy(self, request, pk=None):
+        task = Task.objects.get(pk=pk)
+        task.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=["put"])
+    @auth_decorator
+    def complete(self, request, pk):
+        task = Task.objects.get(pk=pk)
+
+        if task.status == "done":
+            return Response(
+                "This task is already completed", status=status.HTTP_403_FORBIDDEN
+            )
+
+        task.status = "done"
+        task.save()
+        serializer = self.serializer_class(task)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["put"])
+    @auth_decorator
+    def shuffle(self, request):
+        in_progress_tasks = Task.objects.filter(status="in_progress")
+        for task in in_progress_tasks:
+            task.assignee = AuthUser.objects.order_by("?")[0]
+            task.save()
+        serializer = self.serializer_class(in_progress_tasks, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
