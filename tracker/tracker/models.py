@@ -1,17 +1,19 @@
 import uuid
 
-from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-class User(AbstractUser):
+class AuthUser(models.Model):
     ROLE_CHOICES = (
         ("admin", "Admin"),
         ("manager", "Manager"),
         ("user", "User"),
     )
-    public_id = models.UUIDField()
+    public_id = models.UUIDField(primary_key=True)
     role = models.CharField(choices=ROLE_CHOICES, default="user", max_length=254)
+
+    def __str__(self):
+        return str(self.public_id)
 
 
 class Task(models.Model):
@@ -24,4 +26,7 @@ class Task(models.Model):
     status = models.CharField(
         choices=STATUS_CHOICES, default="in_progress", max_length=254
     )
-    assignee = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    assignee = models.ForeignKey(AuthUser, on_delete=models.CASCADE, null=False)
+
+    def __str__(self):
+        return str(self.public_id)

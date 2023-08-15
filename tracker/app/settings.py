@@ -34,8 +34,6 @@ DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = []
 
-AUTH_USER_MODEL = "tracker.User"
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -93,7 +91,7 @@ DATABASES = {
 # Rest framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "tracker.authentication.JWTAuthentication",
     ]
 }
 
@@ -117,3 +115,21 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+JWT_SECRET_KEY = env("JWT_SECRET_KEY")
+JWT_ALGORITHM = env("JWT_ALGORITHM")
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}
