@@ -15,12 +15,12 @@ channel = connection.channel()
 
 def publish(event, body):
     dump_body = json.dumps(body)
-    logger.info(f"UserStreaming event: '{event}' with body: {dump_body}")
+    logger.info(f"TaskStreaming event: '{event}' with body: {dump_body}")
 
     properties = pika.BasicProperties(event)
     channel.basic_publish(
         exchange="",
-        routing_key="UserStreaming",
+        routing_key="TaskStreaming",
         body=dump_body,
         properties=properties,
     )

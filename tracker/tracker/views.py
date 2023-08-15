@@ -1,3 +1,4 @@
+from producer import publish
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -44,6 +45,13 @@ class TaskViewSet(viewsets.ViewSet):
         task.status = "done"
         task.save()
         serializer = self.serializer_class(task)
+        publish(
+            event="Task.Completed",
+            body={
+                "public_id": str(task.public_id),
+                "assignee": str(task.assignee),
+            },
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["post"])
@@ -55,5 +63,12 @@ class TaskViewSet(viewsets.ViewSet):
                 role__in=["manager", "admin"]
             ).order_by("?")[0]
             task.save()
+            publish(
+                event="Task.Assigned",
+                body={
+                    "public_id": str(task.public_id),
+                    "assignee": str(task.assignee),
+                },
+            )
         serializer = self.serializer_class(in_progress_tasks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

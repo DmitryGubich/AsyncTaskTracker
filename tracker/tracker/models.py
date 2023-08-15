@@ -13,7 +13,7 @@ class AuthUser(models.Model):
     role = models.CharField(choices=ROLE_CHOICES, default="user", max_length=254)
 
     def __str__(self):
-        return f"User (public_id:{self.public_id})"
+        return str(self.public_id)
 
 
 class Task(models.Model):
@@ -29,4 +29,4 @@ class Task(models.Model):
     assignee = models.ForeignKey(AuthUser, on_delete=models.CASCADE, null=False)
 
     def __str__(self):
-        return f"{self.public_id} (assignee:{self.assignee})"
+        return str(self.public_id)
