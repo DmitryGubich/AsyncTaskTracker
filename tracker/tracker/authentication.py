@@ -9,13 +9,17 @@ class JWTAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
         auth = request.headers.get("Authorization", "").split()
         if len(auth) != 2:
+            raise exceptions.AuthenticationFailed(detail="No authentication header.")
+
+        try:
+            user = jwt.decode(
+                auth[1], settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+            )
+        except:
             raise exceptions.AuthenticationFailed(
-                detail="Invalid authentication header. No authentication header."
+                detail="Invalid authentication header"
             )
 
-        user = jwt.decode(
-            auth[1], settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
-        )
         try:
             user = AuthUser.objects.get(public_id=user.get("public_id"))
         except AuthUser.DoesNotExist:

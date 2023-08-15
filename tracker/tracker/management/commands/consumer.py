@@ -1,9 +1,12 @@
 import json
+import logging
 
 import pika
 from django.core.management.base import BaseCommand
 
 from tracker.models import AuthUser
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -15,38 +18,29 @@ class Command(BaseCommand):
         )
         channel = connection.channel()
 
-        channel.queue_declare(queue="auth", durable=True)
+        channel.queue_declare(queue="UserStreaming", durable=True)
 
         def callback(ch, method, properties, body):
             data = json.loads(body)
+            logger.info(f"Event: '{properties.content_type}' with body: {data}")
 
-            if properties.content_type == "user_created":
+            if properties.content_type == "User.Created":
                 user = AuthUser.objects.create(
-                    username=data["username"],
                     public_id=data["public_id"],
                     role=data["role"],
                 )
                 user.save()
-                self.stdout.write(
-                    self.style.SUCCESS(f"User (public_id={user.public_id}) was created")
-                )
-            elif properties.content_type == "user_updated":
+            elif properties.content_type == "User.Updated":
                 user = AuthUser.objects.get(public_id=data["public_id"])
                 user.role = data["role"]
                 user.save()
-                self.stdout.write(
-                    self.style.SUCCESS(
-                        f"Role for user (public_id={user.public_id}) was set to {data['role']}"
-                    )
-                )
-            elif properties.content_type == "user_deleted":
-                user = AuthUser.objects.get(public_id=str(data["public_id"]))
+            elif properties.content_type == "User.Deleted":
+                user = AuthUser.objects.get(public_id=data["public_id"])
                 user.delete()
-                self.stdout.write(
-                    self.style.WARNING(
-                        f"User (public_id={data['public_id']}) was deleted"
-                    )
-                )
 
-        channel.basic_consume(queue="auth", on_message_callback=callback, auto_ack=True)
+            logger.info("-" * 50)
+
+        channel.basic_consume(
+            queue="UserStreaming", on_message_callback=callback, auto_ack=True
+        )
         channel.start_consuming()

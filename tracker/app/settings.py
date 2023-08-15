@@ -118,3 +118,18 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 JWT_SECRET_KEY = env("JWT_SECRET_KEY")
 JWT_ALGORITHM = env("JWT_ALGORITHM")
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}

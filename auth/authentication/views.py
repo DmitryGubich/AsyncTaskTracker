@@ -22,7 +22,13 @@ class UserViewSet(viewsets.ViewSet):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        publish("user_created", serializer.data)
+        publish(
+            event="User.Created",
+            body={
+                "public_id": serializer.data.get("public_id"),
+                "role": serializer.data.get("role"),
+            },
+        )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None):
@@ -37,13 +43,24 @@ class UserViewSet(viewsets.ViewSet):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        publish("user_updated", serializer.data)
+        publish(
+            event="User.Updated",
+            body={
+                "public_id": serializer.data.get("public_id"),
+                "role": serializer.data.get("role"),
+            },
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def destroy(self, request, pk=None):
         user = User.objects.get(pk=pk)
         user.delete()
-        publish("user_deleted", str(user.public_id))
+        publish(
+            event="User.Deleted",
+            body={
+                "public_id": str(user.public_id),
+            },
+        )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

@@ -1,6 +1,9 @@
 import json
+import logging
 
 import pika
+
+logger = logging.getLogger(__name__)
 
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
@@ -10,8 +13,14 @@ connection = pika.BlockingConnection(
 channel = connection.channel()
 
 
-def publish(method, body):
-    properties = pika.BasicProperties(method)
+def publish(event, body):
+    dump_body = json.dumps(body)
+    logger.info(f"Event: '{event}' with body: {dump_body}")
+
+    properties = pika.BasicProperties(event)
     channel.basic_publish(
-        exchange="", routing_key="auth", body=json.dumps(body), properties=properties
+        exchange="",
+        routing_key="UserStreaming",
+        body=dump_body,
+        properties=properties,
     )
