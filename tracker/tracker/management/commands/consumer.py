@@ -3,6 +3,8 @@ import logging
 
 import pika
 from django.core.management.base import BaseCommand
+from uber_popug_schemas.events import Auth
+from uber_popug_schemas.schema_registry import SchemaRegistry
 
 from tracker.models import AuthUser
 
@@ -22,23 +24,24 @@ class Command(BaseCommand):
 
         def callback(ch, method, properties, body):
             data = json.loads(body)
+            SchemaRegistry.validate_event(**data)
             logger.info(f"Event: '{properties.content_type}' with body: {data}")
-
-            if properties.content_type == "User.Created":
+            body = data.get("body")
+            if properties.content_type == Auth.USER_CREATED:
                 user = AuthUser.objects.create(
-                    public_id=data["public_id"],
-                    role=data["role"],
+                    public_id=body["public_id"],
+                    role=body["role"],
                 )
                 user.save()
-            elif properties.content_type == "User.Updated":
-                user = AuthUser.objects.get(public_id=data["public_id"])
-                user.role = data["role"]
+            elif properties.content_type == Auth.USER_UPDATED:
+                user = AuthUser.objects.get(public_id=body["public_id"])
+                user.role = body["role"]
                 user.save()
-            elif properties.content_type == "User.Deleted":
-                user = AuthUser.objects.get(public_id=data["public_id"])
+            elif properties.content_type == Auth.USER_DELETED:
+                user = AuthUser.objects.get(public_id=body["public_id"])
                 user.delete()
 
-            logger.info("-" * 50)
+            logger.info("-" * 100)
 
         channel.basic_consume(
             queue="UserStreaming", on_message_callback=callback, auto_ack=True

@@ -2,6 +2,7 @@ from producer import publish
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from uber_popug_schemas.events import Tracker
 
 from tracker.models import AuthUser, Task
 from tracker.permissions import auth_decorator
@@ -45,12 +46,17 @@ class TaskViewSet(viewsets.ViewSet):
         task.status = "done"
         task.save()
         serializer = self.serializer_class(task)
+
         publish(
-            event="Task.Completed",
-            body={
-                "public_id": str(task.public_id),
-                "assignee": str(task.assignee),
-            },
+            event={
+                "event": Tracker.TASK_COMPLETED,
+                "body": {
+                    "public_id": str(task.public_id),
+                    "description": str(task.description),
+                    "assignee": str(task.assignee),
+                },
+                "version": "1",
+            }
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -64,11 +70,15 @@ class TaskViewSet(viewsets.ViewSet):
             ).order_by("?")[0]
             task.save()
             publish(
-                event="Task.Assigned",
-                body={
-                    "public_id": str(task.public_id),
-                    "assignee": str(task.assignee),
-                },
+                event={
+                    "event": Tracker.TASK_ASSIGNED,
+                    "body": {
+                        "public_id": str(task.public_id),
+                        "description": task.description,
+                        "assignee": str(task.assignee),
+                    },
+                    "version": "1",
+                }
             )
         serializer = self.serializer_class(in_progress_tasks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

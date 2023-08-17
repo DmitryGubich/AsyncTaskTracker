@@ -1,5 +1,6 @@
 from producer import publish
 from rest_framework import serializers
+from uber_popug_schemas.events import Tracker
 
 from tracker.models import AuthUser, Task
 
@@ -25,11 +26,15 @@ class TaskSerializer(serializers.ModelSerializer):
         task = Task.objects.create(**validated_data)
 
         publish(
-            event="Task.Assigned",
-            body={
-                "public_id": str(task.public_id),
-                "assignee": str(task.assignee),
-            },
+            event={
+                "event": Tracker.TASK_ASSIGNED,
+                "body": {
+                    "public_id": str(task.public_id),
+                    "description": task.description,
+                    "assignee": str(task.assignee),
+                },
+                "version": "1",
+            }
         )
 
         return task

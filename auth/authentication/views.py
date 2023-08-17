@@ -4,6 +4,7 @@ from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
+from uber_popug_schemas.events import Auth
 
 from .serializers import CustomTokenObtainPairSerializer, UserSerializer
 
@@ -24,7 +25,7 @@ class UserViewSet(viewsets.ViewSet):
         serializer.save()
         publish(
             event={
-                "event": "Auth.UserCreated",
+                "event": Auth.USER_CREATED,
                 "body": {
                     "public_id": serializer.data.get("public_id"),
                     "role": serializer.data.get("role"),
@@ -48,7 +49,7 @@ class UserViewSet(viewsets.ViewSet):
         serializer.save()
         publish(
             event={
-                "event": "Auth.UserUpdated",
+                "event": Auth.USER_UPDATED,
                 "body": {
                     "public_id": serializer.data.get("public_id"),
                     "role": serializer.data.get("role"),
@@ -67,7 +68,7 @@ class UserViewSet(viewsets.ViewSet):
         user.delete()
         publish(
             event={
-                "event": "Auth.UserDeleted",
+                "event": Auth.USER_DELETED,
                 "body": {
                     "public_id": str(user.public_id),
                 },

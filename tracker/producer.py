@@ -2,6 +2,7 @@ import json
 import logging
 
 import pika
+from uber_popug_schemas.schema_registry import SchemaRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -13,14 +14,16 @@ connection = pika.BlockingConnection(
 channel = connection.channel()
 
 
-def publish(event, body):
-    dump_body = json.dumps(body)
-    logger.info(f"TaskStreaming event: '{event}' with body: {dump_body}")
+def publish(event):
+    SchemaRegistry.validate_event(**event)
+    logger.info(
+        f"TaskStreaming event: '{event['event']} v{event['version']}' with body: {event['body']}"
+    )
 
-    properties = pika.BasicProperties(event)
+    properties = pika.BasicProperties(event["event"])
     channel.basic_publish(
         exchange="",
         routing_key="TaskStreaming",
-        body=dump_body,
+        body=json.dumps(event),
         properties=properties,
     )

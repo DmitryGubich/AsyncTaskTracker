@@ -16,16 +16,14 @@ channel = connection.channel()
 
 def publish(event):
     SchemaRegistry.validate_event(**event)
+    logger.info(
+        f"UserStreaming event: '{event['event']} v{event['version']}' with body: {event['body']}"
+    )
 
-    body = event["body"]
-    event_type = event["event"]
-    version = event["version"]
-    logger.info(f"UserStreaming event: '{event_type} v{version}' with body: {body}")
-
-    properties = pika.BasicProperties(event_type)
+    properties = pika.BasicProperties(event["event"])
     channel.basic_publish(
         exchange="",
         routing_key="UserStreaming",
-        body=json.dumps(body),
+        body=json.dumps(event),
         properties=properties,
     )
