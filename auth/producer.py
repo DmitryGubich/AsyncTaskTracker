@@ -13,6 +13,8 @@ connection = pika.BlockingConnection(
 )
 channel = connection.channel()
 
+channel.exchange_declare(exchange="UserStreaming", exchange_type="fanout")
+
 
 def publish(event):
     SchemaRegistry.validate_event(**event)
@@ -22,8 +24,8 @@ def publish(event):
 
     properties = pika.BasicProperties(event["event"])
     channel.basic_publish(
-        exchange="",
-        routing_key="UserStreaming",
+        exchange="UserStreaming",
+        routing_key="",
         body=json.dumps(event),
         properties=properties,
     )

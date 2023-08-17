@@ -53,6 +53,7 @@ class TaskViewSet(viewsets.ViewSet):
                 "body": {
                     "public_id": str(task.public_id),
                     "description": str(task.description),
+                    "status": task.status,
                     "assignee": str(task.assignee),
                 },
                 "version": "1",
@@ -75,6 +76,7 @@ class TaskViewSet(viewsets.ViewSet):
                     "body": {
                         "public_id": str(task.public_id),
                         "description": task.description,
+                        "status": task.status,
                         "assignee": str(task.assignee),
                     },
                     "version": "1",
