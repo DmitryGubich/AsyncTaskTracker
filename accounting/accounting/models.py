@@ -26,8 +26,9 @@ class Task(models.Model):
     description = models.CharField(max_length=254)
     status = models.CharField(choices=STATUS_CHOICES, max_length=254)
     assignee = models.ForeignKey(AuthUser, on_delete=models.CASCADE, null=False)
-    date_created = models.DateField(auto_now_add=True)
-    price = models.IntegerField()
+    assigned_date = models.DateField(auto_now_add=True)
+    price = models.IntegerField(default=0)
+    fee = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
         self.price = random.randint(10, 20)
@@ -40,10 +41,27 @@ class Task(models.Model):
 class Account(models.Model):
     public_id = models.UUIDField(default=uuid.uuid4)
     user = models.ForeignKey(AuthUser, on_delete=models.CASCADE, null=False)
-    balance = models.IntegerField(default=0)
+
+    @property
+    def debit(self):
+        return sum(self.balance_set.values_list("debit", flat=True))
+
+    @property
+    def credit(self):
+        return sum(self.balance_set.values_list("credit", flat=True))
+
+    @property
+    def balance(self):
+        return self.credit - self.debit
 
     def __str__(self):
         return str(self.public_id)
+
+
+class Balance(models.Model):
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, null=False)
+    debit = models.IntegerField(default=0)  # ---
+    credit = models.IntegerField(default=0)  # +++
 
 
 class AuditLog(models.Model):

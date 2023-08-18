@@ -1,9 +1,19 @@
+amqp==5.1.1
 asgiref==3.7.2
 attrs==23.1.0
+billiard==4.1.0
+celery==5.3.1
 certifi==2023.7.22
 charset-normalizer==3.2.0
+click==8.1.7
+click-didyoumean==0.3.0
+click-plugins==1.1.1
+click-repl==0.3.0
+cron-descriptor==1.4.0
 Django==4.2.4
+django-celery-beat==2.5.0
 django-environ==0.10.0
+django-timezone-field==5.1
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.2.2
 idna==3.4
@@ -11,16 +21,25 @@ importlib-metadata==6.8.0
 itsdangerous==0.24
 jsonschema==4.19.0
 jsonschema-specifications==2023.7.1
+kombu==5.3.1
 Markdown==3.4.4
 pika==1.3.2
+prompt-toolkit==3.0.39
 PyJWT==2.8.0
+python-crontab==3.0.0
+python-dateutil==2.8.2
 pytz==2023.3
+redis==5.0.0
 referencing==0.30.2
 requests==2.31.0
 rpds-py==0.9.2
+six==1.16.0
 sqlparse==0.4.4
 typing_extensions==4.7.1
-uber-popug-schemas @ git+https://github.com/DmitryGubich/UberPopugIncSchemas@96795a3b2c6f92d6146816705639cff3a64e9fe3
+tzdata==2023.3
+uber-popug-schemas @ git+https://github.com/DmitryGubich/UberPopugIncSchemas@main
 urllib3==2.0.4
+vine==5.0.0
+wcwidth==0.2.6
 webservices==0.7
 zipp==3.16.2
