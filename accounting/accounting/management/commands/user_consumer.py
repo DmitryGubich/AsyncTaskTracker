@@ -49,8 +49,8 @@ class Command(BaseCommand):
                 user.save()
             elif properties.content_type == Auth.USER_DELETED:
                 user = AuthUser.objects.get(public_id=body["public_id"])
-                user.delete()
                 account = Account.objects.get(user=user)
+                user.delete()
                 account.delete()
 
             logger.info("-" * 100)
