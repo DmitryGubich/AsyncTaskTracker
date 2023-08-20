@@ -47,14 +47,14 @@ class AccountViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["get"])
     @auth_decorator
     def analytics(self, request):
-        completed_prices = list(
+        completed_fees = list(
             Task.objects.filter(status="done").values_list("fee", flat=True)
         )
         in_progress_prices = list(
             Task.objects.filter(status="in_progress").values_list("price", flat=True)
         )
 
-        today_profit = sum(in_progress_prices) - sum(completed_prices)
+        today_profit = sum(in_progress_prices) - sum(completed_fees)
 
         accounts_with_negative_balance = []
         for account in Account.objects.all():
