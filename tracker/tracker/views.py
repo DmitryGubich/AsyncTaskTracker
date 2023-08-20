@@ -57,12 +57,13 @@ class TaskViewSet(viewsets.ViewSet):
                 "body": {
                     "public_id": str(task.public_id),
                     "description": str(task.description),
+                    "jira_id": str(task.jira_id),
                     "status": task.status,
                     "assignee": str(task.assignee),
                     "fee": str(task.fee),
                     "price": str(task.price),
                 },
-                "version": "2",
+                "version": "3",
             }
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -82,10 +83,13 @@ class TaskViewSet(viewsets.ViewSet):
                     "body": {
                         "public_id": str(task.public_id),
                         "description": task.description,
+                        "jira_id": task.jira_id,
                         "status": task.status,
                         "assignee": str(task.assignee),
+                        "fee": str(task.fee),
+                        "price": str(task.price),
                     },
-                    "version": "1",
+                    "version": "3",
                 }
             )
         serializer = self.serializer_class(in_progress_tasks, many=True)

@@ -13,6 +13,7 @@ class TaskSerializer(serializers.ModelSerializer):
             "id",
             "public_id",
             "description",
+            "jira_id",
             "status",
             "assignee",
             "price",
@@ -33,12 +34,13 @@ class TaskSerializer(serializers.ModelSerializer):
                 "body": {
                     "public_id": str(task.public_id),
                     "description": task.description,
+                    "jira_id": task.jira_id,
                     "status": task.status,
                     "assignee": str(task.assignee),
                     "price": str(task.price),
                     "fee": str(task.fee),
                 },
-                "version": "2",
+                "version": "3",
             }
         )
 
