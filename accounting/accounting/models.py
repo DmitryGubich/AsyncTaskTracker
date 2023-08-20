@@ -1,4 +1,3 @@
-import random
 import uuid
 
 from django.db import models
@@ -29,10 +28,6 @@ class Task(models.Model):
     assigned_date = models.DateField(auto_now_add=True)
     price = models.IntegerField(default=0)
     fee = models.IntegerField(default=0)
-
-    def save(self, *args, **kwargs):
-        self.price = random.randint(10, 20)
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return str(self.public_id)

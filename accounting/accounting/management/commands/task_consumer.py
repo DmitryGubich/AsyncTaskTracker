@@ -39,6 +39,8 @@ class Command(BaseCommand):
                         "description": body["description"],
                         "status": body["status"],
                         "assignee": user,
+                        "price": int(body["price"]),
+                        "fee": int(body["fee"]),
                     },
                 )
                 task.save()
@@ -46,21 +48,20 @@ class Command(BaseCommand):
                 Balance.objects.create(account=account, debit=task.price)
                 AuditLog.objects.create(
                     user=user,
-                    description=f"Assigned to task {task.public_id} with price: {task.price}$. Account balance: {account.balance}$",
+                    description=f"Assigned to task {task.public_id} with price: {task.fee}$. Account balance: {account.balance}$",
                 )
 
             elif properties.content_type == Tracker.TASK_COMPLETED:
-                price = random.randint(20, 40)
                 user = AuthUser.objects.get(public_id=body["assignee"])
                 task = Task.objects.get(public_id=body["public_id"])
                 task.status = "done"
-                task.fee = price
+                task.fee = int(body["fee"])
                 task.save()
                 account = Account.objects.get(user=user)
-                Balance.objects.create(account=account, credit=price)
+                Balance.objects.create(account=account, credit=task.fee)
                 AuditLog.objects.create(
                     user=user,
-                    description=f"Completed task {task.public_id} with price: {price}$. Account balance: {account.balance}$",
+                    description=f"Completed task {task.public_id} with fee: {task.fee}$. Account balance: {account.balance}$",
                 )
 
             logger.info("-" * 100)

@@ -20,7 +20,7 @@ requests==2.31.0
 rpds-py==0.9.2
 sqlparse==0.4.4
 typing_extensions==4.7.1
-uber-popug-schemas @ git+https://github.com/DmitryGubich/UberPopugIncSchemas@main
+uber-popug-schemas @ git+https://github.com/DmitryGubich/UberPopugIncSchemas.git@main#subdirectory=python
 urllib3==2.0.4
 webservices==0.7
 zipp==3.16.2

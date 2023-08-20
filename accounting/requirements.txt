@@ -37,7 +37,7 @@ six==1.16.0
 sqlparse==0.4.4
 typing_extensions==4.7.1
 tzdata==2023.3
-uber-popug-schemas @ git+https://github.com/DmitryGubich/UberPopugIncSchemas@main
+uber-popug-schemas @ git+https://github.com/DmitryGubich/UberPopugIncSchemas.git@main#subdirectory=python
 urllib3==2.0.4
 vine==5.0.0
 wcwidth==0.2.6

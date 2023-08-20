@@ -1,3 +1,5 @@
+import random
+
 from producer import publish
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -42,8 +44,10 @@ class TaskViewSet(viewsets.ViewSet):
     @action(detail=True, methods=["put"])
     @auth_decorator
     def complete(self, request, pk):
+        fee = random.randint(20, 40)
         task = Task.objects.get(pk=pk)
         task.status = "done"
+        task.fee = fee
         task.save()
         serializer = self.serializer_class(task)
 
@@ -55,8 +59,10 @@ class TaskViewSet(viewsets.ViewSet):
                     "description": str(task.description),
                     "status": task.status,
                     "assignee": str(task.assignee),
+                    "fee": str(task.fee),
+                    "price": str(task.price),
                 },
-                "version": "1",
+                "version": "2",
             }
         )
         return Response(serializer.data, status=status.HTTP_200_OK)

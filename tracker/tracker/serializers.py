@@ -15,9 +15,11 @@ class TaskSerializer(serializers.ModelSerializer):
             "description",
             "status",
             "assignee",
+            "price",
+            "fee",
         ]
 
-        read_only_fields = ["id", "public_id", "assignee"]
+        read_only_fields = ["id", "public_id", "assignee", "price", "fee"]
 
     def create(self, validated_data):
         validated_data["assignee"] = AuthUser.objects.exclude(
@@ -33,8 +35,10 @@ class TaskSerializer(serializers.ModelSerializer):
                     "description": task.description,
                     "status": task.status,
                     "assignee": str(task.assignee),
+                    "price": str(task.price),
+                    "fee": str(task.fee),
                 },
-                "version": "1",
+                "version": "2",
             }
         )
 
