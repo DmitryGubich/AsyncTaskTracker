@@ -31,32 +31,19 @@ class Command(BaseCommand):
             SchemaRegistry.validate_event(**data)
             logger.info(f"Event: '{properties.content_type}' with body: {data}")
             body = data.get("body")
-            version = data.get("version")
             if properties.content_type == Tracker.TASK_ASSIGNED:
                 user = AuthUser.objects.get(public_id=body["assignee"])
-                if version == "3":
-                    task, _ = Task.objects.get_or_create(
-                        public_id=body["public_id"],
-                        defaults={
-                            "description": body["description"],
-                            "jira_id": body["jira_id"],
-                            "status": body["status"],
-                            "assignee": user,
-                            "price": int(body["price"]),
-                            "fee": int(body["fee"]),
-                        },
-                    )
-                else:
-                    task, _ = Task.objects.get_or_create(
-                        public_id=body["public_id"],
-                        defaults={
-                            "description": body["description"],
-                            "status": body["status"],
-                            "assignee": user,
-                            "price": int(body["price"]),
-                            "fee": int(body["fee"]),
-                        },
-                    )
+                task, _ = Task.objects.get_or_create(
+                    public_id=body["public_id"],
+                    defaults={
+                        "description": body["description"],
+                        "jira_id": body["jira_id"],
+                        "status": body["status"],
+                        "assignee": user,
+                        "price": int(body["price"]),
+                        "fee": int(body["fee"]),
+                    },
+                )
                 task.save()
                 account = Account.objects.get(user=user)
                 Balance.objects.create(account=account, debit=task.price)
@@ -70,8 +57,7 @@ class Command(BaseCommand):
                 task = Task.objects.get(public_id=body["public_id"])
                 task.status = body["status"]
                 task.fee = int(body["fee"])
-                if version == "3":
-                    task.jira_id = body["jira_id"]
+                task.jira_id = body["jira_id"]
                 task.save()
                 account = Account.objects.get(user=user)
                 Balance.objects.create(account=account, credit=task.fee)
