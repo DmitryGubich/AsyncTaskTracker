@@ -25,6 +25,7 @@ class Task(models.Model):
     )
     public_id = models.UUIDField(default=uuid.uuid4)
     description = models.CharField(max_length=254)
+    jira_id = models.CharField(max_length=254)
     status = models.CharField(
         choices=STATUS_CHOICES, default="in_progress", max_length=254
     )
@@ -35,6 +36,10 @@ class Task(models.Model):
     def save(self, *args, **kwargs):
         self.price = random.randint(10, 20)
         super().save(*args, **kwargs)
+
+    def clean(self, *args, **kwargs):
+        if "[" or "]" in self.description:
+            raise ValidationError("You can not put jira id on title field")
 
     def __str__(self):
         return str(self.public_id)
