@@ -1,3 +1,5 @@
+import random
+
 from producer import publish
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -42,8 +44,10 @@ class TaskViewSet(viewsets.ViewSet):
     @action(detail=True, methods=["put"])
     @auth_decorator
     def complete(self, request, pk):
+        fee = random.randint(20, 40)
         task = Task.objects.get(pk=pk)
         task.status = "done"
+        task.fee = fee
         task.save()
         serializer = self.serializer_class(task)
 
@@ -53,10 +57,13 @@ class TaskViewSet(viewsets.ViewSet):
                 "body": {
                     "public_id": str(task.public_id),
                     "description": str(task.description),
+                    "jira_id": str(task.jira_id),
                     "status": task.status,
                     "assignee": str(task.assignee),
+                    "fee": str(task.fee),
+                    "price": str(task.price),
                 },
-                "version": "1",
+                "version": "3",
             }
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -76,10 +83,13 @@ class TaskViewSet(viewsets.ViewSet):
                     "body": {
                         "public_id": str(task.public_id),
                         "description": task.description,
+                        "jira_id": task.jira_id,
                         "status": task.status,
                         "assignee": str(task.assignee),
+                        "fee": str(task.fee),
+                        "price": str(task.price),
                     },
-                    "version": "1",
+                    "version": "3",
                 }
             )
         serializer = self.serializer_class(in_progress_tasks, many=True)
