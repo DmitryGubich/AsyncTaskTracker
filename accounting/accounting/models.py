@@ -2,6 +2,7 @@ import uuid
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from producer import publish
 
 
 class AuthUser(models.Model):
@@ -63,6 +64,24 @@ class Balance(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE, null=False)
     debit = models.IntegerField(default=0)  # ---
     credit = models.IntegerField(default=0)  # +++
+
+    def save(self, *args, **kwargs):
+        publish(
+            event={
+                "event": Accounting.TASK_ASSIGNED,
+                "body": {
+                    "public_id": str(task.public_id),
+                    "description": task.description,
+                    "jira_id": task.jira_id,
+                    "status": task.status,
+                    "assignee": str(task.assignee),
+                    "fee": str(task.fee),
+                    "price": str(task.price),
+                },
+                "version": "3",
+            }
+        )
+        super().save(*args, **kwargs)
 
 
 class AuditLog(models.Model):
