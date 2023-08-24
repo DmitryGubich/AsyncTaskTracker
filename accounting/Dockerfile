@@ -1,0 +1,22 @@
+FROM python:3.8-slim-bullseye
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /accounting
+COPY . /accounting/
+
+# install system dependencies
+RUN apt-get update && apt-get install -y git
+RUN apt-get update && apt-get install -y netcat
+
+RUN pip install -r requirements.txt
+
+# copy entrypoint.sh
+COPY ./entrypoint.sh .
+RUN sed -i 's/\r$//g' /accounting/entrypoint.sh
+RUN chmod +x /accounting/entrypoint.sh
+
+
+# run entrypoint.sh
+ENTRYPOINT ["/accounting/entrypoint.sh"]

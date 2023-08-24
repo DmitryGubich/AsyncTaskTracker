@@ -15,9 +15,7 @@ class Command(BaseCommand):
     help = "Run consumer for rabbitmq"
 
     def handle(self, *args, **kwargs):
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host="localhost")
-        )
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host="broker"))
         channel = connection.channel()
 
         channel.exchange_declare(exchange="BalanceStreaming", exchange_type="fanout")
@@ -28,7 +26,9 @@ class Command(BaseCommand):
         def callback(ch, method, properties, body):
             data = json.loads(body)
             SchemaRegistry.validate_event(**data)
-            logger.info(f"Event: '{properties.content_type}' with body: {data}")
+            logger.info(
+                f"Event: '{properties.content_type}' v{data['version']} with body: {data['body']}"
+            )
             body = data.get("body")
             if properties.content_type == Accounting.BALANCE_CREATED:
                 Balance.objects.create(
@@ -36,8 +36,6 @@ class Command(BaseCommand):
                     debit=int(body["debit"]),
                     credit=int(body["credit"]),
                 )
-
-            logger.info("-" * 100)
 
         channel.basic_consume(
             queue=queue_name, on_message_callback=callback, auto_ack=True

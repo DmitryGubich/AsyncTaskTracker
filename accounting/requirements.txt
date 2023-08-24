@@ -43,3 +43,4 @@ vine==5.0.0
 wcwidth==0.2.6
 webservices==0.7
 zipp==3.16.2
+psycopg2-binary==2.9.7

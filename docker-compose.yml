@@ -1,0 +1,130 @@
+version: '3.9'
+
+services:
+
+  broker:
+    image: 'rabbitmq:3-management-alpine'
+    ports:
+      - '5672:5672'
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 30s
+      retries: 3
+
+  postgres:
+    restart: always
+    image: 'postgres:latest'
+    ports:
+      - '5432:5432'
+    volumes:
+      - 'pgdata:/var/lib/postgresql/data/'
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+  auth:
+    restart: always
+    build: ./auth
+    command: 'python manage.py runserver 0.0.0.0:8000'
+    env_file:
+      - ./auth/.env
+    volumes:
+      - './auth/:/usr/src/auth/'
+    ports:
+      - '8000:8000'
+    depends_on:
+      broker:
+        condition: service_healthy
+
+  tracker:
+    restart: always
+    build: ./tracker
+    command: 'python manage.py runserver 0.0.0.0:8001'
+    env_file:
+      - ./tracker/.env
+    volumes:
+      - './tracker/:/usr/src/tracker/'
+    ports:
+      - '8001:8001'
+    depends_on:
+      broker:
+        condition: service_healthy
+
+  accounting:
+    restart: always
+    build: ./accounting
+    command: 'python manage.py runserver 0.0.0.0:8002'
+    env_file:
+      - ./accounting/.env
+    volumes:
+      - './accounting/:/usr/src/tracker/'
+    ports:
+      - '8002:8002'
+    depends_on:
+      broker:
+        condition: service_healthy
+
+  analytics:
+    restart: always
+    build: ./analytics
+    command: 'python manage.py runserver 0.0.0.0:8003'
+    env_file:
+      - ./analytics/.env
+    volumes:
+      - './analytics/:/usr/src/tracker/'
+    ports:
+      - '8003:8003'
+    depends_on:
+      broker:
+        condition: service_healthy
+
+  tracker-user-consumer:
+    build:
+      context: ./tracker
+    command: 'python manage.py consumer'
+    depends_on:
+      broker:
+        condition: service_healthy
+
+  accounting-user-consumer:
+    build:
+      context: ./accounting
+    command: 'python manage.py user_consumer'
+    depends_on:
+      broker:
+        condition: service_healthy
+
+  accounting-task-consumer:
+    build:
+      context: ./accounting
+    command: 'python manage.py task_consumer'
+    depends_on:
+      broker:
+        condition: service_healthy
+
+  analytics-user-consumer:
+    build:
+      context: ./analytics
+    command: 'python manage.py user_consumer'
+    depends_on:
+      broker:
+        condition: service_healthy
+
+  analytics-task-consumer:
+    build:
+      context: ./analytics
+    command: 'python manage.py task_consumer'
+    depends_on:
+      broker:
+        condition: service_healthy
+
+  analytics-balance-consumer:
+    build:
+      context: ./analytics
+    command: 'python manage.py balance_consumer'
+    depends_on:
+      broker:
+        condition: service_healthy
+
+volumes:
+  pgdata:

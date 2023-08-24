@@ -7,9 +7,7 @@ from uber_popug_schemas.schema_registry import SchemaRegistry
 logger = logging.getLogger(__name__)
 
 connection = pika.BlockingConnection(
-    pika.ConnectionParameters(
-        "localhost", heartbeat=600, blocked_connection_timeout=300
-    )
+    pika.ConnectionParameters("broker", heartbeat=600, blocked_connection_timeout=300)
 )
 channel = connection.channel()
 

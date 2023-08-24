@@ -1,6 +1,5 @@
 import json
 import logging
-import random
 
 import pika
 from django.core.management.base import BaseCommand
@@ -16,9 +15,7 @@ class Command(BaseCommand):
     help = "Run consumer for rabbitmq"
 
     def handle(self, *args, **kwargs):
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host="localhost")
-        )
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host="broker"))
         channel = connection.channel()
 
         channel.exchange_declare(exchange="TaskStreaming", exchange_type="fanout")
@@ -29,7 +26,9 @@ class Command(BaseCommand):
         def callback(ch, method, properties, body):
             data = json.loads(body)
             SchemaRegistry.validate_event(**data)
-            logger.info(f"Event: '{properties.content_type}' with body: {data}")
+            logger.info(
+                f"Event: '{properties.content_type}' v{data['version']} with body: {data['body']}"
+            )
             body = data.get("body")
             if properties.content_type == Tracker.TASK_ASSIGNED:
                 user = AuthUser.objects.get(public_id=body["assignee"])
@@ -49,7 +48,7 @@ class Command(BaseCommand):
                 Balance.objects.create(account=account, debit=task.price)
                 AuditLog.objects.create(
                     user=user,
-                    description=f"Assigned to task {task.public_id} with price: {task.fee}$. Account balance: {account.balance}$",
+                    description=f"Assigned to task {task.public_id} with price: {task.price}$. Account balance: {account.balance}$",
                 )
 
             elif properties.content_type == Tracker.TASK_COMPLETED:
@@ -65,8 +64,6 @@ class Command(BaseCommand):
                     user=user,
                     description=f"Completed task {task.public_id} with fee: {task.fee}$. Account balance: {account.balance}$",
                 )
-
-            logger.info("-" * 100)
 
         channel.basic_consume(
             queue=queue_name, on_message_callback=callback, auto_ack=True

@@ -24,3 +24,4 @@ uber-popug-schemas @ git+https://github.com/DmitryGubich/UberPopugIncSchemas.git
 urllib3==2.0.4
 webservices==0.7
 zipp==3.16.2
+psycopg2-binary==2.9.7
