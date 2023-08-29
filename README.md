@@ -3,7 +3,7 @@
 #### Demo project to try async communication between microservices.
 
 **Technology stack:**
-Each project is a separate django application. All of them are using postgres as a database, but every application is using corresponding database schema.
+Each project is a separate Django application. All of them use Postgres as a database, but every application uses using corresponding database schema.
 
 Useful links:
 * [Initial diagram](https://miro.com/app/board/uXjVMw_TyiA=/?share_link_id=795541479315)
