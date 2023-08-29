@@ -1,6 +1,6 @@
+from async_task_tracker_schemas.events import Tracker
 from producer import publish
 from rest_framework import serializers
-from uber_popug_schemas.events import Tracker
 
 from tracker.models import AuthUser, Task
 

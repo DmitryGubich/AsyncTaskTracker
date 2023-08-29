@@ -1,9 +1,9 @@
 import uuid
 
+from async_task_tracker_schemas.events import Accounting
 from django.core.exceptions import ValidationError
 from django.db import models
 from producer import publish
-from uber_popug_schemas.events import Accounting
 
 
 class AuthUser(models.Model):

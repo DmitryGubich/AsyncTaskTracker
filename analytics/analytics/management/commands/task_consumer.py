@@ -2,9 +2,9 @@ import json
 import logging
 
 import pika
+from async_task_tracker_schemas.events import Tracker
+from async_task_tracker_schemas.schema_registry import SchemaRegistry
 from django.core.management.base import BaseCommand
-from uber_popug_schemas.events import Tracker
-from uber_popug_schemas.schema_registry import SchemaRegistry
 
 from analytics.models import AuthUser, Task
 

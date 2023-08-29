@@ -2,7 +2,7 @@ import json
 import logging
 
 import pika
-from uber_popug_schemas.schema_registry import SchemaRegistry
+from async_task_tracker_schemas.schema_registry import SchemaRegistry
 
 logger = logging.getLogger(__name__)
 
