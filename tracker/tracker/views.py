@@ -1,10 +1,10 @@
 import random
 
+from async_task_tracker_schemas.events import Tracker
 from producer import publish
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from uber_popug_schemas.events import Tracker
 
 from tracker.models import AuthUser, Task
 from tracker.permissions import auth_decorator

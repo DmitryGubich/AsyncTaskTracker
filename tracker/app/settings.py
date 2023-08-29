@@ -83,8 +83,15 @@ WSGI_APPLICATION = "app.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "tracker.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "OPTIONS": {
+            "options": "-c search_path=tracker_schema",
+        },
+        "NAME": env("DB_NAME"),
+        "USER": env("DB_USER"),
+        "PASSWORD": env("DB_PASSWORD"),
+        "HOST": "postgres",
+        "PORT": 5432,
     }
 }
 

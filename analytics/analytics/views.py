@@ -53,6 +53,7 @@ class AnalyticsViewSet(viewsets.ViewSet):
                 {
                     "public_id": task.public_id,
                     "description": task.description,
+                    "jira_id": task.jira_id,
                     "price": task.price,
                 },
                 status=status.HTTP_200_OK,

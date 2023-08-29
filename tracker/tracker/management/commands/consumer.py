@@ -2,9 +2,9 @@ import json
 import logging
 
 import pika
+from async_task_tracker_schemas.events import Auth
+from async_task_tracker_schemas.schema_registry import SchemaRegistry
 from django.core.management.base import BaseCommand
-from uber_popug_schemas.events import Auth
-from uber_popug_schemas.schema_registry import SchemaRegistry
 
 from tracker.models import AuthUser
 
@@ -15,9 +15,7 @@ class Command(BaseCommand):
     help = "Run consumer for rabbitmq"
 
     def handle(self, *args, **kwargs):
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host="localhost")
-        )
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host="broker"))
         channel = connection.channel()
 
         channel.exchange_declare(exchange="UserStreaming", exchange_type="fanout")
@@ -28,7 +26,9 @@ class Command(BaseCommand):
         def callback(ch, method, properties, body):
             data = json.loads(body)
             SchemaRegistry.validate_event(**data)
-            logger.info(f"Event: '{properties.content_type}' with body: {data}")
+            logger.info(
+                f"Event: '{properties.content_type}' v{data['version']} with body: {data['body']}"
+            )
             body = data.get("body")
             if properties.content_type == Auth.USER_CREATED:
                 user = AuthUser.objects.create(
@@ -43,8 +43,6 @@ class Command(BaseCommand):
             elif properties.content_type == Auth.USER_DELETED:
                 user = AuthUser.objects.get(public_id=body["public_id"])
                 user.delete()
-
-            logger.info("-" * 100)
 
         channel.basic_consume(
             queue=queue_name, on_message_callback=callback, auto_ack=True

@@ -2,11 +2,11 @@ import json
 import logging
 
 import pika
+from async_task_tracker_schemas.events import Tracker
+from async_task_tracker_schemas.schema_registry import SchemaRegistry
 from django.core.management.base import BaseCommand
-from uber_popug_schemas.events import Tracker
-from uber_popug_schemas.schema_registry import SchemaRegistry
 
-from accounting.models import AuthUser, Task
+from analytics.models import AuthUser, Task
 
 logger = logging.getLogger(__name__)
 
@@ -15,9 +15,7 @@ class Command(BaseCommand):
     help = "Run consumer for rabbitmq"
 
     def handle(self, *args, **kwargs):
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host="localhost")
-        )
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host="broker"))
         channel = connection.channel()
 
         channel.exchange_declare(exchange="TaskStreaming", exchange_type="fanout")
@@ -28,7 +26,9 @@ class Command(BaseCommand):
         def callback(ch, method, properties, body):
             data = json.loads(body)
             SchemaRegistry.validate_event(**data)
-            logger.info(f"Event: '{properties.content_type}' with body: {data}")
+            logger.info(
+                f"Event: '{properties.content_type}' v{data['version']} with body: {data['body']}"
+            )
             body = data.get("body")
             if properties.content_type == Tracker.TASK_ASSIGNED:
                 user = AuthUser.objects.get(public_id=body["assignee"])
@@ -46,14 +46,11 @@ class Command(BaseCommand):
                 task.save()
 
             elif properties.content_type == Tracker.TASK_COMPLETED:
-                user = AuthUser.objects.get(public_id=body["assignee"])
                 task = Task.objects.get(public_id=body["public_id"])
                 task.status = body["status"]
                 task.fee = int(body["fee"])
                 task.jira_id = body["jira_id"]
                 task.save()
-
-            logger.info("-" * 100)
 
         channel.basic_consume(
             queue=queue_name, on_message_callback=callback, auto_ack=True

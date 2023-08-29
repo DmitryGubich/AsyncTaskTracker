@@ -13,7 +13,7 @@ def pay_salary():
             # send_mail(
             #     "Salary",
             #     f"Great! Your salary is :{account.balance}!",
-            #     "uber-popug-inc@test.com",
+            #     "asyn-task-tracker@test.com",
             #     [user.public_id],  # should be email
             #     fail_silently=False,
             # )

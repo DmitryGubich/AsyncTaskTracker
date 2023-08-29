@@ -1,5 +1,6 @@
 import uuid
 
+from async_task_tracker_schemas.events import Accounting
 from django.core.exceptions import ValidationError
 from django.db import models
 from producer import publish
@@ -68,17 +69,13 @@ class Balance(models.Model):
     def save(self, *args, **kwargs):
         publish(
             event={
-                "event": Accounting.TASK_ASSIGNED,
+                "event": Accounting.BALANCE_CREATED,
                 "body": {
-                    "public_id": str(task.public_id),
-                    "description": task.description,
-                    "jira_id": task.jira_id,
-                    "status": task.status,
-                    "assignee": str(task.assignee),
-                    "fee": str(task.fee),
-                    "price": str(task.price),
+                    "account": str(self.account),
+                    "debit": str(self.debit),
+                    "credit": str(self.credit),
                 },
-                "version": "3",
+                "version": "1",
             }
         )
         super().save(*args, **kwargs)

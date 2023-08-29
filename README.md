@@ -1,21 +1,17 @@
-## UberPopugInc
+## AsyncTaskTracker
 
-#### Awesome Task Exchange System (aTES) for UberPopug Inc
+#### Demo project to try async communication between microservices.
 
-Диаграммы приложения:
-* [Общая схема приложения для нулевой домашки (до всего курса)](https://miro.com/app/board/uXjVMw_TyiA=/?share_link_id=795541479315)
-* [Event storming, Data model, Services и Event схемы](https://miro.com/app/board/uXjVMwrO9Fc=/?share_link_id=611585265044)
+**Technology stack:**
+Each project is a separate django application. All of them are using postgres as a database, but every application is using corresponding database schema.
 
+Useful links:
+* [Initial diagram](https://miro.com/app/board/uXjVMw_TyiA=/?share_link_id=795541479315)
+* [Event storming, Data model, Services and Event schemas](https://miro.com/app/board/uXjVMwrO9Fc=/?share_link_id=611585265044)
+* [Schema registry repository](https://github.com/DmitryGubich/AsyncTaskTrackerSchemas)
 
-
-## Переход на новую версию события
-1. Создаём новую версию сообщения в [Schema registry](https://github.com/DmitryGubich/UberPopugIncSchemas). Папка `schemas`.
-2. Публикуем новую версию библиотеки.
-3. Переходим на новую версию библиотеки в сервисах-консьюмерах, поддерживая одновременно обработку событий двух версий.
-4. Переходим на новую версию библиотеки в сервисах-продьюсерах, переставая публиковать события в старом формате.
-5. Рефакторинг сервисов-консьюмеров – перестаём обрабатывать события старого формата.
-
-## Стратегия обработки ошибок:
-* **Message Broker перестал работать**. Необходимо создать в каждом микросервисе (где есть продьюсеры) отдельную Outbox таблицу, в которую будут сохраняться все события, предназначенные для отправки. Отдельный процесс должен вычитывать новые записи из этой таблицы и производить саму отправку (в случае успешной отправки, сообщение помечается как отправленное).
-* **Событие оказалось невалидным**. Необходимо создать в каждом микросервисе (где есть консьюмеры) отдельную Inbox таблицу, в которую будут сохраняться все входящие события, которые не удалось обработать. Потом можно будет поднять консьюмер, который обработает сообщения из таблицы.
-* **Развалилась бизнес-логика**. Предусмотреть бизнес события, которые могут уведомлять остальные микросервисы о возникшей ошибке. В свою очередь, те микросервисы должны корректно обрабатывать это событие.
+## How to run the project
+Run this command in the console 
+```
+docker-compose up
+```

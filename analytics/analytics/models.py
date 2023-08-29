@@ -26,7 +26,7 @@ class Task(models.Model):
     description = models.CharField(max_length=254)
     jira_id = models.CharField(max_length=254, null=True)
     status = models.CharField(choices=STATUS_CHOICES, max_length=254)
-    assignee = models.UUIDField()
+    assignee = models.ForeignKey(AuthUser, on_delete=models.CASCADE, null=False)
     assigned_date = models.DateField(auto_now_add=True)
     price = models.IntegerField(default=0)
     fee = models.IntegerField(default=0)
