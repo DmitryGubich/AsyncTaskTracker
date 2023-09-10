@@ -18,18 +18,22 @@ class Command(BaseCommand):
         connection = pika.BlockingConnection(pika.ConnectionParameters(host="broker"))
         channel = connection.channel()
 
-        channel.exchange_declare(exchange="TaskStreaming", exchange_type="fanout")
+        channel.exchange_declare(exchange="TaskBusinessEvents", exchange_type="fanout")
         result = channel.queue_declare(queue="", exclusive=True)
         queue_name = result.method.queue
-        channel.queue_bind(exchange="TaskStreaming", queue=queue_name)
+        channel.queue_bind(exchange="TaskBusinessEvents", queue=queue_name)
 
         def callback(ch, method, properties, body):
             data = json.loads(body)
-            SchemaRegistry.validate_event(**data)
-            logger.info(
-                f"Event: '{properties.content_type}' v{data['version']} with body: {data['body']}"
+            SchemaRegistry.validate_event(
+                event=data["event_name"],
+                body=data,
+                version=data["event_version"],
             )
-            body = data.get("body")
+            logger.info(
+                f"Event: '{properties.content_type}' v{data['event_version']} with body: {data}"
+            )
+            body = data.get("data")
             if properties.content_type == Tracker.TASK_ASSIGNED:
                 user = AuthUser.objects.get(public_id=body["assignee"])
                 task, _ = Task.objects.get_or_create(
@@ -39,8 +43,8 @@ class Command(BaseCommand):
                         "jira_id": body["jira_id"],
                         "status": body["status"],
                         "assignee": user,
-                        "price": int(body["price"]),
-                        "fee": int(body["fee"]),
+                        "price": body["price"],
+                        "fee": body["fee"],
                     },
                 )
                 task.save()
@@ -55,7 +59,7 @@ class Command(BaseCommand):
                 user = AuthUser.objects.get(public_id=body["assignee"])
                 task = Task.objects.get(public_id=body["public_id"])
                 task.status = body["status"]
-                task.fee = int(body["fee"])
+                task.fee = body["fee"]
                 task.jira_id = body["jira_id"]
                 task.save()
                 account = Account.objects.get(user=user)

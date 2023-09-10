@@ -18,7 +18,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - 'pgdata:/var/lib/postgresql/data/'
+      - 'pgdata:/var/lib/postgresql/data'
       - './init-schemas-db.sh:/docker-entrypoint-initdb.d/init-schemas-db.sh'
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
@@ -30,7 +30,7 @@ services:
     env_file:
       - ./auth/.env
     volumes:
-      - './auth/:/usr/src/auth/'
+      - './auth:/auth'
     ports:
       - '8000:8000'
     depends_on:
@@ -44,7 +44,7 @@ services:
     env_file:
       - ./tracker/.env
     volumes:
-      - './tracker/:/usr/src/tracker/'
+      - './tracker:/tracker'
     ports:
       - '8001:8001'
     depends_on:
@@ -58,7 +58,7 @@ services:
     env_file:
       - ./accounting/.env
     volumes:
-      - './accounting/:/usr/src/tracker/'
+      - './accounting:/accounting'
     ports:
       - '8002:8002'
     depends_on:
@@ -72,7 +72,7 @@ services:
     env_file:
       - ./analytics/.env
     volumes:
-      - './analytics/:/usr/src/tracker/'
+      - './analytics:/analytics'
     ports:
       - '8003:8003'
     depends_on:

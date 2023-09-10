@@ -1,7 +1,5 @@
 import random
 
-from async_task_tracker_schemas.events import Tracker
-from producer import publish
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -50,22 +48,6 @@ class TaskViewSet(viewsets.ViewSet):
         task.fee = fee
         task.save()
         serializer = self.serializer_class(task)
-
-        publish(
-            event={
-                "event": Tracker.TASK_COMPLETED,
-                "body": {
-                    "public_id": str(task.public_id),
-                    "description": str(task.description),
-                    "jira_id": str(task.jira_id),
-                    "status": task.status,
-                    "assignee": str(task.assignee),
-                    "fee": str(task.fee),
-                    "price": str(task.price),
-                },
-                "version": "3",
-            }
-        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["post"])
@@ -77,20 +59,5 @@ class TaskViewSet(viewsets.ViewSet):
                 role__in=["manager", "admin"]
             ).order_by("?")[0]
             task.save()
-            publish(
-                event={
-                    "event": Tracker.TASK_ASSIGNED,
-                    "body": {
-                        "public_id": str(task.public_id),
-                        "description": task.description,
-                        "jira_id": task.jira_id,
-                        "status": task.status,
-                        "assignee": str(task.assignee),
-                        "fee": str(task.fee),
-                        "price": str(task.price),
-                    },
-                    "version": "3",
-                }
-            )
         serializer = self.serializer_class(in_progress_tasks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

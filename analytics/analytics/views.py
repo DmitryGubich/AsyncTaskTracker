@@ -13,14 +13,14 @@ class AnalyticsViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["get"])
     @auth_decorator
     def analytics(self, request):
-        completed_fees = list(
+        completed_fees = sum(
             Task.objects.filter(status="done").values_list("fee", flat=True)
         )
-        in_progress_prices = list(
+        in_progress_prices = sum(
             Task.objects.filter(status="in_progress").values_list("price", flat=True)
         )
 
-        today_profit = sum(in_progress_prices) - sum(completed_fees)
+        today_profit = in_progress_prices - completed_fees
 
         accounts_with_negative_balance = (
             Balance.objects.values("account")

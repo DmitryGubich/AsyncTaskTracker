@@ -18,5 +18,3 @@ docker-compose up
 
 ### TODO:
 * Implement celery logic with redis
-* Refactor code (move events logic)
-* Ideally rewrite using FastAPI

@@ -25,11 +25,15 @@ class Command(BaseCommand):
 
         def callback(ch, method, properties, body):
             data = json.loads(body)
-            SchemaRegistry.validate_event(**data)
-            logger.info(
-                f"Event: '{properties.content_type}' v{data['version']} with body: {data['body']}"
+            SchemaRegistry.validate_event(
+                event=data["event_name"],
+                body=data,
+                version=data["event_version"],
             )
-            body = data.get("body")
+            logger.info(
+                f"Event: '{properties.content_type}' v{data['event_version']} with body: {data}"
+            )
+            body = data.get("data")
             if properties.content_type == Auth.USER_CREATED:
                 user = AuthUser.objects.create(
                     public_id=body["public_id"],

@@ -1,3 +1,4 @@
+import inspect
 import uuid
 
 from async_task_tracker_schemas.events import Auth
@@ -19,7 +20,7 @@ class User(AbstractUser):
         create = not self.pk
         super().save(*args, **kwargs)
         if create:
-            # created
+            # create
             publish(
                 event={
                     "event": Auth.USER_CREATED,
@@ -32,7 +33,6 @@ class User(AbstractUser):
             )
         else:
             # update
-
             publish(
                 event={
                     "event": Auth.USER_UPDATED,

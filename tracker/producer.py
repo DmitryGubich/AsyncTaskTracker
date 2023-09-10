@@ -1,5 +1,7 @@
+import datetime
 import json
 import logging
+import uuid
 
 import pika
 from async_task_tracker_schemas.schema_registry import SchemaRegistry
@@ -11,19 +13,27 @@ connection = pika.BlockingConnection(
 )
 channel = connection.channel()
 
-channel.exchange_declare(exchange="TaskStreaming", exchange_type="fanout")
+channel.exchange_declare(exchange="TaskBusinessEvents", exchange_type="fanout")
 
 
 def publish(event):
-    SchemaRegistry.validate_event(**event)
-    logger.info(
-        f"TaskStreaming event: '{event['event']} v{event['version']}' with body: {event['body']}"
+    event_body = {
+        "event_id": str(uuid.uuid4()),
+        "event_version": event["version"],
+        "event_name": event["event"],
+        "event_time": str(datetime.datetime.now()),
+        "producer": "AsyncTaskTracker.Tracker",
+        "data": event["body"],
+    }
+    SchemaRegistry.validate_event(
+        event=event["event"], body=event_body, version=event["version"]
     )
+    logger.info(f"TaskBusinessEvents event: {json.dumps(event_body)}")
 
     properties = pika.BasicProperties(event["event"])
     channel.basic_publish(
-        exchange="TaskStreaming",
+        exchange="TaskBusinessEvents",
         routing_key="",
-        body=json.dumps(event),
+        body=json.dumps(event_body),
         properties=properties,
     )

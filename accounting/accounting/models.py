@@ -72,10 +72,10 @@ class Balance(models.Model):
                 "event": Accounting.BALANCE_CREATED,
                 "body": {
                     "account": str(self.account),
-                    "debit": str(self.debit),
-                    "credit": str(self.credit),
+                    "debit": self.debit,
+                    "credit": self.credit,
                 },
-                "version": "1",
+                "version": 1,
             }
         )
         super().save(*args, **kwargs)

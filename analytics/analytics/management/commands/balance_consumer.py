@@ -18,18 +18,24 @@ class Command(BaseCommand):
         connection = pika.BlockingConnection(pika.ConnectionParameters(host="broker"))
         channel = connection.channel()
 
-        channel.exchange_declare(exchange="BalanceStreaming", exchange_type="fanout")
+        channel.exchange_declare(
+            exchange="AccountBusinessEvents", exchange_type="fanout"
+        )
         result = channel.queue_declare(queue="", exclusive=True)
         queue_name = result.method.queue
-        channel.queue_bind(exchange="BalanceStreaming", queue=queue_name)
+        channel.queue_bind(exchange="AccountBusinessEvents", queue=queue_name)
 
         def callback(ch, method, properties, body):
             data = json.loads(body)
-            SchemaRegistry.validate_event(**data)
-            logger.info(
-                f"Event: '{properties.content_type}' v{data['version']} with body: {data['body']}"
+            SchemaRegistry.validate_event(
+                event=data["event_name"],
+                body=data,
+                version=data["event_version"],
             )
-            body = data.get("body")
+            logger.info(
+                f"Event: '{properties.content_type}' v{data['event_version']} with body: {data}"
+            )
+            body = data.get("data")
             if properties.content_type == Accounting.BALANCE_CREATED:
                 Balance.objects.create(
                     account=body["account"],
